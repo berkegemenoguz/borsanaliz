@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/berkegemenoguz/PycharmProjects/borsanalizdemo/.venv/bin/python /Users/berkegemenoguz/PycharmProjects/borsanalizdemo/viop_terminal.py)"
+    ]
+  }
+}
