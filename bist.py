@@ -1,20 +1,14 @@
 import borsapy as bp
+import pandas as pd
 
-start = "2026-07-01"
-end = "2026-07-01"
+# Tüm şirketler
+sirketler = bp.companies()
 
-hisse = bp.Ticker("THYAO")
-df = hisse.history(
-    start=start,
-    end=end,
-    interval="5m"
-)
+# DataFrame'e çevir
+df = pd.DataFrame(sirketler)
+print(f"Toplam şirket sayısı: {len(df)}")
+print(df)
 
-# Tarih ve saat sütununu ayır
-df["Tarih"] = df.index.date
-df["Saat"] = df.index.time
-df = df.reset_index(drop=True)
-
-dosya_adi = f"thyaobist_{start}//{end}.csv"
-df.to_csv(dosya_adi, index=False, encoding="utf-8")
-print(f"{dosya_adi} olarak kaydedildi")
+# CSV olarak kaydet
+df.to_csv("bist_sirketleri.csv", index=False, encoding="utf-8")
+print("bist_sirketleri.csv olarak kaydedildi")
