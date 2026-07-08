@@ -23,7 +23,7 @@ else:
 df = df.sort_values("Datetime").reset_index(drop=True)
 
 #csv
-dosya_adi = f"{sembol}_{start}_{end}"
+dosya_adi = f"Z{sembol}_{start}_{end}"
 df["Tarih"] = df["Datetime"].dt.date
 df["Saat"] = df["Datetime"].dt.time
 df.to_csv(f"{dosya_adi}.csv", index=False, encoding="utf-8")
