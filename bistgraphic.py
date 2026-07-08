@@ -109,27 +109,17 @@ ax1.legend(handles=[yesil, kirmizi], facecolor="#161b22",
 degisim_ok = "▲" if degisim >= 0 else "▼"
 degisim_renk = "#26a69a" if degisim >= 0 else "#ef5350"
 fark_isaret = "+" if fark_tl >= 0 else ""
-ozet_metin = (
-    f"Acilis:       {acilis:.2f} TL\n"
-    f"Kapanis:      {kapanis:.2f} TL\n"
-    f"En Yuksek:    {en_yuksek:.2f} TL  ({en_yuksek_saat})\n"
-    f"En Dusuk:     {en_dusuk:.2f} TL  ({en_dusuk_saat})\n"
-    f"Fark:         {fark_isaret}{fark_tl:.2f} TL\n"
-    f"Gun Ici Range: {gun_ici_range:.2f} TL\n"
-    f"Toplam Hacim:  {hacim_format(toplam_hacim)}"
-)
-ax1.text(0.01, 0.97, ozet_metin, transform=ax1.transAxes,
-         fontsize=8, fontfamily="monospace", color="white",
-         verticalalignment="top",
-         bbox=dict(boxstyle="round,pad=0.5", facecolor="#161b22",
-                   edgecolor="#333333", alpha=0.9))
 
-degisim_str = f"{degisim_ok} {degisim:+.2f}%"
-ax1.text(0.01, 0.45, degisim_str, transform=ax1.transAxes,
-         fontsize=9, fontweight="bold", color=degisim_renk,
-         verticalalignment="top",
-         bbox=dict(boxstyle="round,pad=0.3", facecolor="#161b22",
-                   edgecolor=degisim_renk, alpha=0.9))
+ozet_satir = (
+    f"Acilis: {acilis:.2f} TL   |   "
+    f"Kapanis: {kapanis:.2f} TL   |   "
+    f"En Yuksek: {en_yuksek:.2f} TL ({en_yuksek_saat})   |   "
+    f"En Dusuk: {en_dusuk:.2f} TL ({en_dusuk_saat})   |   "
+    f"Fark: {fark_isaret}{fark_tl:.2f} TL   |   "
+    f"Range: {gun_ici_range:.2f} TL   |   "
+    f"Hacim: {hacim_format(toplam_hacim)}   |   "
+    f"{degisim_ok} {degisim:+.2f}%"
+)
 
 ax1.axhline(y=kapanis, color=degisim_renk, linestyle="--",
             linewidth=0.8, alpha=0.7, zorder=3)
@@ -140,6 +130,11 @@ ax1.text(len(df) - 1, kapanis, f" {kapanis:.2f}",
                    edgecolor=degisim_renk, alpha=0.9))
 
 plt.tight_layout()
+plt.subplots_adjust(bottom=0.13)
+fig.text(0.5, 0.02, ozet_satir, ha="center", va="center",
+         fontsize=8, fontfamily="monospace", color="white",
+         bbox=dict(boxstyle="round,pad=0.5", facecolor="#161b22",
+                   edgecolor="#333333", alpha=0.9))
 grafik_adi = f"{dosya_adi}_candlestick.png"
 plt.savefig(grafik_adi, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
 print(f"Grafik kaydedildi: {grafik_adi}")
