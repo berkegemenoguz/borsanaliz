@@ -77,7 +77,7 @@ def grafik_ciz(sembol, start, end, interval="5m"):
         ax.yaxis.label.set_color("#aaaaaa")
         ax.grid(color="#1e2a38", linewidth=0.5, zorder=0)
 
-    ax1.set_title(f"{sembol}  |  {start}  |  {interval} mum grafik",
+    ax1.set_title(f"{sembol}  |  {start} - {end} |  {interval} mum grafik",
                   color="white", fontsize=13, pad=10)
     ax1.yaxis.set_major_locator(MultipleLocator(0.5))
     ax1.set_ylabel("Fiyat (TL)", color="#aaaaaa")
