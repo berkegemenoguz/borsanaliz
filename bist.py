@@ -1,5 +1,7 @@
 import borsapy as bp
 import pandas as pd
+from datetime import date
+from bistgraphic import grafik_ciz
 
 
 def bist_ozet_getir():
@@ -83,6 +85,17 @@ def detay_goster(sembol):
                   f"{r.get('Low', 0):>10.2f} {r.get('Close', 0):>10.2f} {r.get('Volume', 0):>12,.0f}")
 
     print(f"\n{'=' * 72}")
+
+    grafik_sec = input("\n  Grafik görmek ister misiniz? (e/h): ").strip().lower()
+    if grafik_sec == "e":
+        bugun = date.today().isoformat()
+        start = input(f"  Başlangıç tarihi (YYYY-MM-DD) [{bugun}]: ").strip() or bugun
+        end = input(f"  Bitiş tarihi (YYYY-MM-DD) [{bugun}]: ").strip() or bugun
+        interval = input(f"  Interval (5m/15m/1h) [5m]: ").strip() or "5m"
+        try:
+            grafik_ciz(sembol, start, end, interval)
+        except Exception as e:
+            print(f"  Grafik oluşturulamadı: {e}")
 
 
 def main():
