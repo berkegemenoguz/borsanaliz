@@ -117,7 +117,7 @@ def grafik_ciz(sembol, start, end, interval="5m"):
              fontsize=8, fontfamily="monospace", color="white",
              bbox=dict(boxstyle="round,pad=0.5", facecolor="#161b22",
                        edgecolor="#333333", alpha=0.9))
-    grafik_adi = f"Z{sembol}_{start}_{end}_candlestick.png"
+    grafik_adi = f"Z{sembol}_{start}_{end}.png"
     plt.savefig(grafik_adi, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
     print(f"Grafik kaydedildi: {grafik_adi}")
     plt.show()
