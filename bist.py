@@ -1,7 +1,7 @@
 import borsapy as bp
 import pandas as pd
 from datetime import date
-from bistgraphic import grafik_ciz
+from graphicgenerator import grafik_ciz
 
 
 def bist_ozet_getir():

@@ -1,8 +1,12 @@
+import os
 import borsapy as bp
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.ticker import MultipleLocator
 import pandas as pd
+
+GRAFIK_KLASORU = os.path.join(os.path.dirname(os.path.abspath(__file__)), "grafikler")
+os.makedirs(GRAFIK_KLASORU, exist_ok=True)
 
 
 def hacim_format(v):
@@ -118,8 +122,9 @@ def grafik_ciz(sembol, start, end, interval="5m"):
              bbox=dict(boxstyle="round,pad=0.5", facecolor="#161b22",
                        edgecolor="#333333", alpha=0.9))
     grafik_adi = f"Z{sembol}_{start}_{end}.png"
-    plt.savefig(grafik_adi, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
-    print(f"Grafik kaydedildi: {grafik_adi}")
+    grafik_yolu = os.path.join(GRAFIK_KLASORU, grafik_adi)
+    plt.savefig(grafik_yolu, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
+    print(f"Grafik kaydedildi: {grafik_yolu}")
     plt.show()
 
 

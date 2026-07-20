@@ -1,7 +1,9 @@
 import borsapy as bp
 import pandas as pd
 import re
+from datetime import date
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from graphicgenerator import grafik_ciz
 
 AY_MAP = {
     "01": "F", "02": "G", "03": "H", "04": "J", "05": "K", "06": "M",
@@ -110,6 +112,24 @@ def detay_goster(base, tum_df):
                   f"{r.get('Low',0):>10.2f} {r.get('Close',0):>10.2f} {r.get('Volume',0):>10.0f}")
 
     print(f"\n{'=' * 72}")
+
+    grafik_sec = input("\n  Grafik görmek ister misiniz? (e/h): ").strip().lower()
+    if grafik_sec == "e":
+        sembol_listesi = list(semboller.keys())
+        if len(sembol_listesi) == 1:
+            secilen = sembol_listesi[0]
+        else:
+            print(f"  Kontratlar: {', '.join(sembol_listesi)}")
+            secilen = input(f"  Sembol seçin [{sembol_listesi[0]}]: ").strip().upper() or sembol_listesi[0]
+
+        bugun = date.today().isoformat()
+        start = input(f"  Başlangıç tarihi (YYYY-MM-DD) [{bugun}]: ").strip() or bugun
+        end = input(f"  Bitiş tarihi (YYYY-MM-DD) [{bugun}]: ").strip() or bugun
+        interval = input(f"  Interval (5m/15m/1h) [5m]: ").strip() or "5m"
+        try:
+            grafik_ciz(secilen, start, end, interval)
+        except Exception as e:
+            print(f"  Grafik oluşturulamadı: {e}")
 
 
 def main():
