@@ -129,6 +129,8 @@ def grafik_ciz(sembol, start, end, interval="5m"):
             "scrollZoom": True,
             "displaylogo": False,
         },
+        post_script='document.querySelector(".modebar").style.transform="scale(1.5)";'
+                    'document.querySelector(".modebar").style.transformOrigin="top right";',
     )
     print(f"  Grafik kaydedildi: {grafik_yolu}")
     webbrowser.open(f"file://{grafik_yolu}")
