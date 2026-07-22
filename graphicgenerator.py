@@ -1,8 +1,8 @@
 import os
+import webbrowser
 import borsapy as bp
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib.ticker import MultipleLocator
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 
 GRAFIK_KLASORU = os.path.join(os.path.dirname(os.path.abspath(__file__)), "grafikler")
@@ -37,95 +37,101 @@ def grafik_ciz(sembol, start, end, interval="5m"):
 
     acilis = df.iloc[0]["Open"]
     kapanis = df.iloc[-1]["Close"]
-    en_yuksek_idx = df["High"].idxmax()
-    en_dusuk_idx = df["Low"].idxmin()
-    en_yuksek = df.loc[en_yuksek_idx, "High"]
-    en_dusuk = df.loc[en_dusuk_idx, "Low"]
-    en_yuksek_saat = df.loc[en_yuksek_idx, "Datetime"].strftime("%H:%M")
-    en_dusuk_saat = df.loc[en_dusuk_idx, "Datetime"].strftime("%H:%M")
+    en_yuksek = df["High"].max()
+    en_dusuk = df["Low"].min()
+    en_yuksek_saat = df.loc[df["High"].idxmax(), "Datetime"].strftime("%H:%M")
+    en_dusuk_saat = df.loc[df["Low"].idxmin(), "Datetime"].strftime("%H:%M")
     fark_tl = kapanis - acilis
-    gun_ici_range = en_yuksek - en_dusuk
     degisim = (kapanis - acilis) / acilis * 100
     toplam_hacim = df["Volume"].sum()
 
-    fig, (ax1, ax2) = plt.subplots(
-        2, 1, figsize=(14, 8),
-        gridspec_kw={"height_ratios": [3, 1]},
-        sharex=True
+    hacim_renk = [
+        "#26a69a" if c >= o else "#ef5350"
+        for c, o in zip(df["Close"], df["Open"])
+    ]
+
+    fig = make_subplots(
+        rows=2, cols=1, shared_xaxes=True,
+        vertical_spacing=0.03,
+        row_heights=[0.75, 0.25],
     )
-    fig.patch.set_facecolor("#0d1117")
-    ax1.set_facecolor("#0d1117")
-    ax2.set_facecolor("#0d1117")
 
-    for i, row in df.iterrows():
-        o, h, l, c = row["Open"], row["High"], row["Low"], row["Close"]
-        renk = "#26a69a" if c >= o else "#ef5350"
-        body_bottom = min(o, c)
-        body_height = abs(c - o) if abs(c - o) > 0 else 0.001
-        ax1.bar(i, body_height, bottom=body_bottom, color=renk, width=0.6, zorder=2)
-        ax1.plot([i, i], [l, h], color=renk, linewidth=0.8, zorder=1)
+    fig.add_trace(go.Candlestick(
+        x=df["Datetime"],
+        open=df["Open"], high=df["High"],
+        low=df["Low"], close=df["Close"],
+        increasing_line_color="#26a69a", increasing_fillcolor="#26a69a",
+        decreasing_line_color="#ef5350", decreasing_fillcolor="#ef5350",
+        name="Fiyat",
+    ), row=1, col=1)
 
-    for i, row in df.iterrows():
-        renk = "#26a69a" if row["Close"] >= row["Open"] else "#ef5350"
-        ax2.bar(i, row["Volume"], color=renk, width=0.6, alpha=0.8)
+    fig.add_trace(go.Bar(
+        x=df["Datetime"], y=df["Volume"],
+        marker_color=hacim_renk, opacity=0.8,
+        name="Hacim",
+    ), row=2, col=1)
 
-    tick_step = max(1, len(df) // 12)
-    ticks = list(range(0, len(df), tick_step))
-    labels = [df.loc[i, "Datetime"].strftime("%H:%M") for i in ticks]
-    ax2.set_xticks(ticks)
-    ax2.set_xticklabels(labels, rotation=45, ha="right", color="#aaaaaa", fontsize=8)
-
-    for ax in (ax1, ax2):
-        ax.tick_params(colors="#aaaaaa")
-        ax.spines[:].set_color("#333333")
-        ax.yaxis.label.set_color("#aaaaaa")
-        ax.grid(color="#1e2a38", linewidth=0.5, zorder=0)
-
-    ax1.set_title(f"{sembol}  |  {start} - {end} |  {interval} mum grafik",
-                  color="white", fontsize=13, pad=10)
-    ax1.yaxis.set_major_locator(MultipleLocator(0.5))
-    ax1.set_ylabel("Fiyat (TL)", color="#aaaaaa")
-    ax2.set_ylabel("Hacim", color="#aaaaaa")
-
-    yesil = mpatches.Patch(color="#26a69a", label="Yükseliş")
-    kirmizi = mpatches.Patch(color="#ef5350", label="Düşüş")
-    ax1.legend(handles=[yesil, kirmizi], facecolor="#161b22",
-               labelcolor="white", edgecolor="#333333")
+    degisim_renk = "#26a69a" if degisim >= 0 else "#ef5350"
+    fig.add_hline(
+        y=kapanis, line_dash="dash", line_color=degisim_renk,
+        line_width=1, opacity=0.7, row=1, col=1,
+        annotation_text=f" {kapanis:.2f}",
+        annotation_font_color=degisim_renk,
+        annotation_font_size=10,
+    )
 
     degisim_ok = "▲" if degisim >= 0 else "▼"
-    degisim_renk = "#26a69a" if degisim >= 0 else "#ef5350"
     fark_isaret = "+" if fark_tl >= 0 else ""
-
-    ozet_satir = (
-        f"Acilis: {acilis:.2f} TL   |   "
-        f"Kapanis: {kapanis:.2f} TL   |   "
-        f"En Yuksek: {en_yuksek:.2f} TL ({en_yuksek_saat})   |   "
-        f"En Dusuk: {en_dusuk:.2f} TL ({en_dusuk_saat})   |   "
-        f"Fark: {fark_isaret}{fark_tl:.2f} TL   |   "
-        f"Range: {gun_ici_range:.2f} TL   |   "
-        f"Hacim: {hacim_format(toplam_hacim)}   |   "
+    ozet = (
+        f"Açılış: {acilis:.2f} TL  |  Kapanış: {kapanis:.2f} TL  |  "
+        f"En Yüksek: {en_yuksek:.2f} ({en_yuksek_saat})  |  "
+        f"En Düşük: {en_dusuk:.2f} ({en_dusuk_saat})  |  "
+        f"Fark: {fark_isaret}{fark_tl:.2f} TL  |  "
+        f"Hacim: {hacim_format(toplam_hacim)}  |  "
         f"{degisim_ok} {degisim:+.2f}%"
     )
 
-    ax1.axhline(y=kapanis, color=degisim_renk, linestyle="--",
-                linewidth=0.8, alpha=0.7, zorder=3)
-    ax1.text(len(df) - 1, kapanis, f" {kapanis:.2f}",
-             fontsize=7, color=degisim_renk, fontweight="bold",
-             verticalalignment="center",
-             bbox=dict(boxstyle="round,pad=0.2", facecolor="#161b22",
-                       edgecolor=degisim_renk, alpha=0.9))
+    fig.update_layout(
+        title=f"{sembol}  |  {start} → {end}  |  {interval} mum grafik",
+        plot_bgcolor="#0d1117",
+        paper_bgcolor="#0d1117",
+        font_color="#aaaaaa",
+        xaxis_rangeslider_visible=False,
+        yaxis_title="Fiyat (TL)",
+        yaxis2_title="Hacim",
+        legend=dict(bgcolor="#161b22", bordercolor="#333333"),
+        margin=dict(b=80),
+        annotations=[dict(
+            text=ozet, xref="paper", yref="paper",
+            x=0.5, y=-0.12, showarrow=False,
+            font=dict(size=10, family="monospace", color="white"),
+            bgcolor="#161b22", bordercolor="#333333", borderpad=6,
+        )],
+        newshape=dict(line_color="#ffab00", line_width=2),
+    )
 
-    plt.tight_layout()
-    plt.subplots_adjust(bottom=0.13)
-    fig.text(0.5, 0.02, ozet_satir, ha="center", va="center",
-             fontsize=8, fontfamily="monospace", color="white",
-             bbox=dict(boxstyle="round,pad=0.5", facecolor="#161b22",
-                       edgecolor="#333333", alpha=0.9))
-    grafik_adi = f"Z{sembol}_{start}_{end}.png"
+    for ax in ["xaxis", "xaxis2", "yaxis", "yaxis2"]:
+        fig.update_layout(**{ax: dict(gridcolor="#1e2a38", zeroline=False)})
+
+    grafik_adi = f"Z{sembol}_{start}_{end}.html"
     grafik_yolu = os.path.join(GRAFIK_KLASORU, grafik_adi)
-    plt.savefig(grafik_yolu, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
-    print(f"Grafik kaydedildi: {grafik_yolu}")
-    plt.show()
+
+    fig.write_html(
+        grafik_yolu,
+        config={
+            "modeBarButtons": [
+                ["zoomIn2d", "zoomOut2d"],
+                ["zoom2d", "pan2d", "select2d"],
+                ["drawline", "drawrect", "eraseshape"],
+                ["resetScale2d", "autoScale2d"],
+                ["toImage"],
+            ],
+            "scrollZoom": True,
+            "displaylogo": False,
+        },
+    )
+    print(f"  Grafik kaydedildi: {grafik_yolu}")
+    webbrowser.open(f"file://{grafik_yolu}")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,5 @@
 from bist import main as bist_main
 from viop import main as viop_main
-
-
 def main():
     print("\n" + "=" * 40)
     print("  BORSA ANALİZ ARACI")
